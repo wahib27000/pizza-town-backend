@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     res.send("API Pizza Town en marche 🚀");
 });
 
-const Order = require('./models/Order');
+const Order = require('./models/order');
 
 // Enregistrer une commande
 app.post('/api/orders', async (req, res) => {
