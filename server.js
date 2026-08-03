@@ -9,11 +9,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Connexion MongoDB Atlas
-mongoose.connect('mongodb+srv://wahib27000:TON_MOT_DE_PASSE@cluster0.xxxxx.mongodb.net/pizzatown?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+// Connexion MongoDB Atlas sécurisée
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://wahibbertoune_db_user:cPQQUxaACjoT3J1s@pizzatowncluster.tapbmak.mongodb.net/pizzatown?appName=PizzaTownCluster';
+
+mongoose.connect(MONGO_URI)
 .then(() => console.log('Connecté à MongoDB Atlas'))
 .catch(err => console.error('Erreur de connexion MongoDB :', err));
 
