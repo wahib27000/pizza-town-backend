@@ -1,17 +1,13 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    client: {
-        nom: String,
-        telephone: String,
-        ville: String,
-        adresse: String
-    },
-    articles: Array,       // La liste des pizzas et boissons commandées
-    total: Number,         // Le montant total en euros
-    mode: String,          // 'livraison' ou 'emporter'
-    statut: { type: String, default: 'en_attente' }, // en_attente, en_preparation, prete
-    date: { type: Date, default: Date.now }
+  customerName: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  items: { type: Array, required: true },
+  total: { type: Number, required: true },
+  status: { type: String, default: 'En attente' },
+  createdAt: { type: Date, default: Date.now } // Date et heure automatiques
 });
 
 module.exports = mongoose.model('Order', orderSchema);

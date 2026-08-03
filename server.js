@@ -1,76 +1,56 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const Order = require('./models/order');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const MONGO_URI = "mongodb+srv://wahibbertoune_db_user:cPQQUxaACjoT3J1s@pizzatowncluster.tapbmak.mongodb.net/?appName=PizzaTownCluster";
+// Connexion MongoDB Atlas
+mongoose.connect('mongodb+srv://wahib27000:TON_MOT_DE_PASSE@cluster0.xxxxx.mongodb.net/pizzatown?retryWrites=true&w=majority', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('Connecté à MongoDB Atlas'))
+.catch(err => console.error('Erreur de connexion MongoDB :', err));
 
-mongoose.connect(MONGO_URI)
-.then(() => console.log("✅ Connecté avec succès à MongoDB Atlas !"))
-.catch(err => console.error("❌ Erreur de connexion à MongoDB :", err));
-
-app.get('/', (req, res) => {
-    res.send("API Pizza Town en marche 🚀");
-});
-
-const Order = require('./models/order');
-
-// Enregistrer une commande
+// Route pour créer une commande (utilisée par le site client)
 app.post('/api/orders', async (req, res) => {
-    try {
-        const nouvelleCommande = new Order(req.body);
-        await nouvelleCommande.save(); 
-        console.log("🍕 Nouvelle commande reçue et enregistrée !");
-        res.status(201).json({ success: true, orderId: nouvelleCommande._id, message: "Commande enregistrée !" });
-    } catch (error) {
-        console.error("Erreur lors de l'enregistrement :", error);
-        res.status(500).json({ success: false, error: "Erreur serveur." });
-    }
+  try {
+    const newOrder = new Order(req.body);
+    const savedOrder = await newOrder.save();
+    res.status(201).json(savedOrder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Récupérer toutes les commandes
+// Route pour récupérer toutes les commandes (utilisée par l'admin)
 app.get('/api/orders', async (req, res) => {
-    try {
-        const commandes = await Order.find().sort({ date: -1 });
-        res.json(commandes);
-    } catch (error) {
-        res.status(500).json({ error: "Erreur lors de la récupération des commandes." });
-    }
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 }); // Plus récentes en premier
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Récupérer une commande par son ID (pour le tracker client)
-app.get('/api/orders/:id', async (req, res) => {
-    try {
-        const commande = await Order.findById(req.params.id);
-        if (!commande) return res.status(404).json({ error: "Commande introuvable" });
-        res.json(commande);
-    } catch (error) {
-        res.status(500).json({ error: "Erreur serveur" });
-    }
+// Route pour mettre à jour le statut d'une commande
+app.put('/api/orders/:id', async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
+    res.json(updatedOrder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Mettre à jour le statut d'une commande (Admin)
-app.patch('/api/orders/:id/statut', async (req, res) => {
-    try {
-        const { statut } = req.body;
-        const commandeMiseAJour = await Order.findByIdAndUpdate(
-            req.params.id, 
-            { statut: statut }, 
-            { new: true }
-        );
-        if (!commandeMiseAJour) return res.status(404).json({ success: false, error: "Introuvable" });
-        
-        console.log(`🔄 Commande ${req.params.id} passée en statut : ${statut}`);
-        res.json({ success: true, commande: commandeMiseAJour });
-    } catch (error) {
-        res.status(500).json({ success: false, error: "Erreur serveur" });
-    }
-});
-
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+  console.log(`Serveur lancé sur le port ${PORT}`);
 });
