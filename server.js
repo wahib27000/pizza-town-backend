@@ -9,7 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Connexion MongoDB Atlas sécurisée
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://wahibbertoune_db_user:cPQQUxaACjoT3J1s@pizzatowncluster.tapbmak.mongodb.net/pizzatown?appName=PizzaTownCluster';
 
 mongoose.connect(MONGO_URI)
@@ -36,13 +35,10 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-// --- NOUVELLE ROUTE POUR LE TRACKER CLIENT ---
 app.get('/api/orders/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: 'Commande introuvable' });
-    }
+    if (!order) return res.status(404).json({ message: 'Commande introuvable' });
     res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,7 +58,7 @@ app.put('/api/orders/:id', async (req, res) => {
   }
 });
 
-// --- ROUTES PRODUITS (Catalogue géré par l'admin) ---
+// --- ROUTES PRODUITS ---
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -82,12 +78,17 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// --- NOUVELLE ROUTE : Mise à jour d'un produit (Pour la rupture de stock) ---
+// Route indispensable pour le Kill-Switch (disponible: true/false)
 app.put('/api/products/:id', async (req, res) => {
   try {
+    const updateData = {};
+    if (req.body.disponible !== undefined) updateData.disponible = req.body.disponible;
+    if (req.body.nom) updateData.nom = req.body.nom;
+    if (req.body.prixBase) updateData.prixBase = req.body.prixBase;
+    
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { disponible: req.body.disponible },
+      updateData,
       { new: true }
     );
     res.json(updatedProduct);
@@ -105,7 +106,7 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// --- ROUTES PROMOS (Gestion des promotions par l'admin) ---
+// --- ROUTES PROMOS ---
 app.get('/api/promos', async (req, res) => {
   try {
     const promos = await Promo.find();
