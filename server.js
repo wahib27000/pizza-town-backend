@@ -78,7 +78,6 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// Route indispensable pour le Kill-Switch (disponible: true/false)
 app.put('/api/products/:id', async (req, res) => {
   try {
     const updateData = {};

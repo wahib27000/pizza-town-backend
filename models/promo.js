@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const promoSchema = new mongoose.Schema({
-  titre: { type: String, required: true },
-  description: { type: String, required: true },
-  active: { type: Boolean, default: true },
+  code: { type: String, required: true, unique: true },
+  valeur: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
