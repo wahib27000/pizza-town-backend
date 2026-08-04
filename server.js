@@ -36,6 +36,19 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
+// --- NOUVELLE ROUTE POUR LE TRACKER CLIENT ---
+app.get('/api/orders/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Commande introuvable' });
+    }
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.put('/api/orders/:id', async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
