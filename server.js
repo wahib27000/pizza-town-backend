@@ -82,6 +82,20 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+// --- NOUVELLE ROUTE : Mise à jour d'un produit (Pour la rupture de stock) ---
+app.put('/api/products/:id', async (req, res) => {
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { disponible: req.body.disponible },
+      { new: true }
+    );
+    res.json(updatedProduct);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/products/:id', async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
