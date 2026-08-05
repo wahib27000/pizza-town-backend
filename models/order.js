@@ -1,13 +1,16 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  customerName: { type: String, required: true },
-  phone: { type: String, required: true },
-  address: { type: String, required: true },
-  items: { type: Array, required: true },
-  total: { type: Number, required: true },
+  items: Array,
+  total: Number,
+  mode: String,
+  customerName: String,
+  phone: String,
+  address: String,
+  heureRetrait: String,
   status: { type: String, default: 'En attente' },
-  createdAt: { type: Date, default: Date.now } // Date et heure automatiques
+  userId: { type: String }, // 👈 LA LIGNE MAGIQUE QUI RELIE LA COMMANDE AU CLIENT
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Order', orderSchema);
